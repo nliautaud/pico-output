@@ -23,6 +23,6 @@ format|desc.|example
 `raw`|The raw page, with meta header and raw variables.|`---\nTitle:My title\n---\nSome content. *base_url*: %base_url%`
 `prepared`|The page content without the meta header and with parsed variables.|`Some content. *base_url*: http://monsite.com`
 `json`|The page data in json format.|`{"id":"index","url":"http:\/\/monsite.com\/index","title":"My title","author":"","time":"","date":"","date_formatted":"","raw_content":"---\nTitle:My title\n---\nSome content. *base_url*: %base_url%","content":"<p>Some content. <emph>base_url</emph>: http://monsite.com</p>"}`
-`xml`|The page data in xml format.|`{"id":"index","url":"http:\/\/monsite.com\/index","title":"My title","author":"","time":"","date":"","date_formatted":"","raw_content":"---\nTitle:My title\n---\nSome content. *base_url*: %base_url%","content":"<p>Some content. <emph>base_url</emph>: http://monsite.com</p>"}`
+`xml`|The page data in xml format.|`<page><id>index</id><url>http://monsite.com/index</url><title>My title</title><author/><time/><date/><date_formatted/><raw_content>---\nTitle:My title\n---\nSome content. *base_url*: %base_url%</raw_content><content><p>Some content. <emph>base_url</emph>: http://monsite.com</p></content></page>"}`
 
 Note that some formats output the page meta or basic internal data.
