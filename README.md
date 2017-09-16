@@ -1,18 +1,18 @@
-# Pico Page Output
+# Pico Output
 
 Output the page content or data as raw, html, json or xml with `?output` in [Pico CMS](http://picocms.org).
 
 ## Installation
 
-Copy `PicoPageOutput.php` to the `plugins/` directory of your Pico Project.
+Copy `PicoOutput.php` to the `plugins/` directory of your Pico Project.
 
 ## Usage
 
 Enable the plugin and the output formats in Pico `config.php`.
 
 ```php
-$config['PicoPageOutput.enabled'] = true; // by default
-$config['PicoPageOutput.enabledFormats'] = array('content', 'prepared');
+$config['PicoOutput.enabled'] = true; // by default
+$config['PicoOutput.enabledFormats'] = array('content', 'prepared');
 ```
 
 Then add `?output=format` to any url.
