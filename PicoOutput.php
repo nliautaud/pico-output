@@ -59,6 +59,9 @@ final class PicoOutput extends AbstractPicoPlugin
     private function contentOutput()
     {
         $pico = $this->getPico();
+        $page = $pico->getCurrentPage();
+        unset($page['previous_page']);
+        unset($page['next_page']);
         switch ($this->contentFormat) {
             case 'raw':
                 return $pico->getRawContent();
@@ -66,11 +69,11 @@ final class PicoOutput extends AbstractPicoPlugin
                 return $pico->prepareFileContent($pico->getRawContent(), $pico->getFileMeta());
             case 'json':
                 header('Content-Type: application/json;charset=utf-8');
-                return json_encode($pico->getCurrentPage());
+                return json_encode($page);
             case 'xml':
                 header("Content-type: text/xml");
                 $xml = new SimpleXMLElement('<page/>');
-                $this->array_to_xml($pico->getCurrentPage(), $xml);
+                $this->array_to_xml($page, $xml);
                 return $xml->asXML();
             default:
                 return $pico->getFileContent();
