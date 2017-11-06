@@ -8,11 +8,11 @@ Copy `PicoOutput.php` to the `plugins/` directory of your Pico Project.
 
 ## Usage
 
-Enable the plugin and the output formats in Pico `config.php`.
+Enable output formats in Pico config file.
 
-```php
-$config['PicoOutput.enabled'] = true; // by default
-$config['PicoOutput.enabledFormats'] = array('content', 'prepared');
+```yml
+PicoOutput.enabled: true # by default
+PicoOutput.enabledFormats: [content, raw, prepared, xml, json]
 ```
 
 Then add `?output=format` to any url.
