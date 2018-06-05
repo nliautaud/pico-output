@@ -1,15 +1,16 @@
 <?php
 /**
- * Output the page content or data as raw, html, json or xml with `?output`.
+ * Output Pico CMS page data as raw text, html, json or xml with `?output`.
  *
  * @author	Nicolas Liautaud
  * @link	https://github.com/nliautaud/pico-content-output
  * @link    http://picocms.org
  * @license http://opensource.org/licenses/MIT The MIT License
- * @version 0.1.0
  */
 final class PicoOutput extends AbstractPicoPlugin
 {
+    const API_VERSION = 2;
+
     private $serveContent;
     private $contentFormat;
 
@@ -62,6 +63,7 @@ final class PicoOutput extends AbstractPicoPlugin
         $page = $pico->getCurrentPage();
         unset($page['previous_page']);
         unset($page['next_page']);
+        unset($page['tree_node']);
         switch ($this->contentFormat) {
             case 'raw':
                 return $pico->getRawContent();
@@ -78,7 +80,7 @@ final class PicoOutput extends AbstractPicoPlugin
             default:
                 return $pico->getFileContent();
         }
-    }  
+    }
 
     // function defination to convert array to xml
     private function array_to_xml( $data, &$xml_data )

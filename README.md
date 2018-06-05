@@ -1,6 +1,6 @@
 # Pico Output
 
-Output the page content or data as raw, html, json or xml with `?output` in [Pico CMS](http://picocms.org).
+Output [Pico CMS](http://picocms.org) page data as raw text, html, json or xml with `?output`.
 
 ## Installation
 
