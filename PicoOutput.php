@@ -2,57 +2,78 @@
 /**
  * Output Pico CMS page data as raw text, html, json or xml with `?output`.
  *
- * @author	Nicolas Liautaud
- * @link	https://github.com/nliautaud/pico-content-output
+ * @author  Nicolas Liautaud
+ * @link    https://github.com/nliautaud/pico-content-output
  * @link    http://picocms.org
  * @license http://opensource.org/licenses/MIT The MIT License
  */
-final class PicoOutput extends AbstractPicoPlugin
+class PicoOutput extends AbstractPicoPlugin
 {
     const API_VERSION = 2;
 
-    private $serveContent;
-    private $contentFormat;
+    private $format;
 
-    /**
-     * Look for ?output=format in url (format as `content` by default)
-     *
-     * Triggered after Pico has evaluated the request URL
-     *
-     * @see    Pico::getRequestUrl()
-     * @param  string &$url part of the URL describing the requested contents
-     * @return void
-     */
-     public function onRequestUrl(&$url)
-     {
-        $this->serveContent = isset($_GET['output']);
-        if ($this->serveContent)
-            $this->contentFormat = $_GET['output'] ? $_GET['output'] : 'content';
-    }
     /**
      * Output the page data in the defined format.
      *
      * Triggered after Pico has rendered the page
      *
-     * @param  string &$output contents which will be sent to the user
+     * @see DummyPlugin::onPageRendering()
+     *
+     * @param string &$output contents which will be sent to the user
+     *
      * @return void
      */
     public function onPageRendered(&$output)
     {
-        if ($this->serveContent && $this->enabledFormat())
+        if (!isset($_GET['output'])) {
+            return;
+        }
+        $default = $this->getSetting('default');
+        if (empty($_GET['output']) && empty($default)) {
+            return;
+        }
+        $this->format = empty($_GET['output']) ? $default : $_GET['output'];
+
+        if ($this->format && $this->canOutput($this->format)) {
             $output = $this->contentOutput();
-    } 
+        }
+    }
+
     /**
      * Check if the requested format is enabled in config.
      *
+     * @param string $outputFormat
+     *
      * @return bool
      */
-    public function enabledFormat()
+    public function canOutput($outputFormat)
     {
-        $enabledFormats = $this->getPico()->getConfig('PicoOutput.enabledFormats');
-        return is_array($enabledFormats) && in_array($this->contentFormat, $enabledFormats);
-    } 
-    
+        $enabledFormats = $this->getPluginConfig('formats');
+        if (!is_array($enabledFormats)) {
+            $enabledFormats = array();
+        }
+        $pageMeta = $this->getFileMeta();
+        if (isset($pageMeta['PicoOutput']) && is_array($pageMeta['PicoOutput']['formats'])) {
+            $enabledFormats = array_merge($enabledFormats, $pageMeta['PicoOutput']['formats']);
+        }
+        return in_array($outputFormat, $enabledFormats);
+    }
+
+    /**
+     * Get a plugin setting, on page metadata or on pico config
+     *
+     * @return mixed
+     */
+    public function getSetting($key)
+    {
+        $pageMeta = $this->getFileMeta();
+        if (isset($pageMeta['PicoOutput']) && isset($pageMeta['PicoOutput'][$key])) {
+            return $pageMeta['PicoOutput'][$key];
+        }
+        return $this->getPluginConfig($key);
+    }
+
     /**
      * Return the current page data in the defined format.
      * @return string
@@ -64,7 +85,7 @@ final class PicoOutput extends AbstractPicoPlugin
         unset($page['previous_page']);
         unset($page['next_page']);
         unset($page['tree_node']);
-        switch ($this->contentFormat) {
+        switch ($this->format) {
             case 'raw':
                 return $pico->getRawContent();
             case 'prepared':
@@ -75,27 +96,33 @@ final class PicoOutput extends AbstractPicoPlugin
             case 'xml':
                 header("Content-type: text/xml");
                 $xml = new SimpleXMLElement('<page/>');
-                $this->array_to_xml($page, $xml);
+                PicoOutput::arrayToXML($page, $xml);
                 return $xml->asXML();
             default:
                 return $pico->getFileContent();
         }
     }
-
-    // function defination to convert array to xml
-    private function array_to_xml( $data, &$xml_data )
+    
+    /**
+     * Convert an array to a SimpleXMLElement
+     *
+     * @param [arr] $arr
+     * @param [SimpleXMLElement] $xmlRoot
+     * @return void
+     * @see https://stackoverflow.com/a/5965940
+     */
+    private static function arrayToXML($arr, &$xmlRoot)
     {
-        foreach( $data as $key => $value ) {
-            if( is_numeric($key) ){
+        foreach ($arr as $key => $value) {
+            if (is_numeric($key)) {
                 $key = 'item'.$key; //dealing with <0/>..<n/> issues
             }
-            if( is_array($value) ) {
-                $subnode = $xml_data->addChild($key);
-                $this->array_to_xml($value, $subnode);
+            if (is_array($value)) {
+                $subnode = $xmlRoot->addChild($key);
+                PicoOutput::arrayToXML($value, $subnode);
             } else {
-                $xml_data->addChild("$key",htmlspecialchars("$value"));
+                $xmlRoot->addChild("$key", htmlspecialchars("$value"));
             }
-         }
+        }
     }
 }
-?>
