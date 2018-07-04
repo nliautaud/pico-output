@@ -15,7 +15,6 @@ Configure the plugin and enable outputs formats in the Pico config file (for sit
 ```yml
 PicoOutput:
     formats: [content, raw, prepared, json, xml]
-    default: content    # for ?output
 ```
 
 Then add `?output=format` to a page url.

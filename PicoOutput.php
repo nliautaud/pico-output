@@ -11,8 +11,6 @@ class PicoOutput extends AbstractPicoPlugin
 {
     const API_VERSION = 2;
 
-    private $format;
-
     /**
      * Output the page data in the defined format.
      *
@@ -26,17 +24,11 @@ class PicoOutput extends AbstractPicoPlugin
      */
     public function onPageRendered(&$output)
     {
-        if (!isset($_GET['output'])) {
+        if (empty($_GET['output'])) {
             return;
         }
-        $default = $this->getSetting('default');
-        if (empty($_GET['output']) && empty($default)) {
-            return;
-        }
-        $this->format = empty($_GET['output']) ? $default : $_GET['output'];
-
-        if ($this->format && $this->canOutput($this->format)) {
-            $output = $this->contentOutput();
+        if ($this->canOutput($_GET['output'])) {
+            $output = $this->contentOutput($_GET['output'], $output);
         }
     }
 
@@ -76,16 +68,20 @@ class PicoOutput extends AbstractPicoPlugin
 
     /**
      * Return the current page data in the defined format.
+     *
+     * @param string $outputFormat
+     * @param string $default
+     *
      * @return string
      */
-    private function contentOutput()
+    private function contentOutput($outputFormat, $default)
     {
         $pico = $this->getPico();
         $page = $pico->getCurrentPage();
         unset($page['previous_page']);
         unset($page['next_page']);
         unset($page['tree_node']);
-        switch ($this->format) {
+        switch ($outputFormat) {
             case 'raw':
                 return $pico->getRawContent();
             case 'prepared':
@@ -98,11 +94,13 @@ class PicoOutput extends AbstractPicoPlugin
                 $xml = new SimpleXMLElement('<page/>');
                 PicoOutput::arrayToXML($page, $xml);
                 return $xml->asXML();
-            default:
+            case 'content':
                 return $pico->getFileContent();
+            default:
+                return $default;
         }
     }
-    
+
     /**
      * Convert an array to a SimpleXMLElement
      *
