@@ -2,8 +2,6 @@
 
 Output [Pico CMS](http://picocms.org) page data as raw text, html, json or xml with `?output`.
 
-Demo : http://pico.nliautaud.fr/PicoOutput
-
 ## Installation
 
 Copy `PicoOutput.php` to the `plugins/` directory of your Pico Project.
